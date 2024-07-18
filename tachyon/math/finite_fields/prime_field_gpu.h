@@ -467,7 +467,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return true;
   }
 
-  BigInt<N> value_;
+  BigInt<N> value_ = BigInt<N>::Zero();
 };
 
 }  // namespace tachyon::math

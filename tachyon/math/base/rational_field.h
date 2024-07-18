@@ -194,7 +194,7 @@ class RationalField : public Field<RationalField<F>> {
   }
 
  private:
-  F numerator_;
+  F numerator_ = F::Zero();
   F denominator_ = F::One();
 };
 

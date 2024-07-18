@@ -48,9 +48,7 @@ TACHYON_EXPORT std::string LimbsToHexString(const uint64_t* limbs,
 // designed to support a wide range of big integer arithmetic operations.
 template <size_t N>
 struct BigInt {
-  uint64_t limbs[N] = {
-      0,
-  };
+  uint64_t limbs[N];
   constexpr static size_t kLimbNums = N;
   constexpr static size_t kSmallestLimbIdx = SMALLEST_INDEX(N);
   constexpr static size_t kBiggestLimbIdx = BIGGEST_INDEX(N);
@@ -59,20 +57,20 @@ struct BigInt {
   constexpr static size_t kLimbBitNums = kLimbByteNums * 8;
   constexpr static size_t kBitNums = kByteNums * 8;
 
-  constexpr BigInt() = default;
+  BigInt() = default;
   constexpr explicit BigInt(int64_t value)
       : BigInt(static_cast<uint64_t>(value)) {
     DCHECK_GE(value, int64_t{0});
   }
-  constexpr explicit BigInt(uint64_t value) { limbs[kSmallestLimbIdx] = value; }
+  constexpr explicit BigInt(uint64_t value) : limbs{0} { limbs[kSmallestLimbIdx] = value; }
   constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {
     DCHECK_GE(value, 0);
   }
   template <typename T, std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
-  constexpr explicit BigInt(T value) {
+  constexpr explicit BigInt(T value) : limbs{0} {
     limbs[kSmallestLimbIdx] = value;
   }
-  constexpr explicit BigInt(std::initializer_list<int> values) {
+  constexpr explicit BigInt(std::initializer_list<int> values) : limbs{0} {
     DCHECK_LE(values.size(), N);
     auto it = values.begin();
     for (size_t i = 0; i < values.size(); ++i, ++it) {
@@ -81,7 +79,7 @@ struct BigInt {
     }
   }
   template <typename T, std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
-  constexpr explicit BigInt(std::initializer_list<T> values) {
+  constexpr explicit BigInt(std::initializer_list<T> values) : limbs{0} {
     DCHECK_LE(values.size(), N);
     auto it = values.begin();
     for (size_t i = 0; i < values.size(); ++i, ++it) {
@@ -257,8 +255,8 @@ struct BigInt {
   constexpr BigInt<N2> Extend() const {
     static_assert(N2 > N);
     BigInt<N2> ret;
-    for (size_t i = 0; i < N; ++i) {
-      ret[i] = limbs[i];
+    for (size_t i = 0; i < N2; ++i) {
+      ret[i] = i < N ? limbs[i] : 0;
     }
     return ret;
   }
@@ -709,8 +707,8 @@ struct BigInt {
       LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
       return false;
     }
-    BigInt quotient;
-    BigInt remainder;
+    BigInt quotient(0);
+    BigInt remainder(0);
     size_t bits = BitTraits<BigInt>::GetNumBits(*this);
     uint64_t carry = 0;
     uint64_t& smallest_bit = remainder.limbs[kSmallestLimbIdx];

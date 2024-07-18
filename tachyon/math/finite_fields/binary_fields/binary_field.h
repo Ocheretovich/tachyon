@@ -48,7 +48,7 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   using CpuField = BinaryField<Config>;
   using GpuField = BinaryField<Config>;
 
-  constexpr BinaryField() = default;
+  constexpr BinaryField() : BinaryField(0) {};
   template <typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
   constexpr explicit BinaryField(T value) {
     if constexpr (kBits <= 64) {
@@ -70,7 +70,7 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   constexpr BinaryField(BinaryField&& other) = default;
   constexpr BinaryField& operator=(BinaryField&& other) = default;
 
-  constexpr static BinaryField Zero() { return BinaryField(); }
+  constexpr static BinaryField Zero() { return BinaryField(0); }
   constexpr static BinaryField One() { return BinaryField(1); }
   constexpr static BinaryField MinusOne() { return One(); }
 

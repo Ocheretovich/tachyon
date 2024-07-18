@@ -250,7 +250,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
  private:
-  BigInt<N> value_;
+  BigInt<N> value_ = BigInt<N>::Zero();
 };
 
 }  // namespace tachyon::math
