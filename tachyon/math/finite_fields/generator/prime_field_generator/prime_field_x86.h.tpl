@@ -105,7 +105,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
   static PrimeField FromMpzClass(const mpz_class& value) {
-    BigInt<N> big_int;
+    BigInt<N> big_int(0);
     gmp::CopyLimbs(value, big_int.limbs);
     return FromBigInt(big_int);
   }

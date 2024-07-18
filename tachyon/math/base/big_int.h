@@ -117,14 +117,14 @@ struct BigInt {
 
   // Convert a decimal string to a BigInt.
   static std::optional<BigInt> FromDecString(std::string_view str) {
-    BigInt ret;
+    BigInt ret(0);
     if (!internal::StringToLimbs(str, ret.limbs, N)) return std::nullopt;
     return ret;
   }
 
   // Convert a hexadecimal string to a BigInt.
   static std::optional<BigInt> FromHexString(std::string_view str) {
-    BigInt ret;
+    BigInt ret(0);
     if (!(internal::HexStringToLimbs(str, ret.limbs, N))) return std::nullopt;
     return ret;
   }
@@ -633,7 +633,7 @@ struct BigInt {
   }
 
   constexpr MulResult<BigInt> Multiply(const BigInt& other) const {
-    MulResult<BigInt> ret;
+    MulResult<BigInt> ret{BigInt(0), BigInt(0)};
     MulResult<uint64_t> mul_result;
     FOR_FROM_SMALLEST(i, 0, N) {
       FOR_FROM_SMALLEST(j, 0, N) {
@@ -686,7 +686,7 @@ struct BigInt {
   }
 
   constexpr std::optional<BigInt> Div(const BigInt& other) const {
-    DivResult<BigInt> result;
+    DivResult<BigInt> result{BigInt::Zero(), BigInt::Zero()};
     if (LIKELY(Divide(other, result))) return result.quotient;
     LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
     return std::nullopt;
@@ -694,7 +694,7 @@ struct BigInt {
 
   // NOTE(ashjeong): we assume that mod 0 will never occur
   constexpr BigInt Mod(const BigInt& other) const {
-    DivResult<BigInt> result;
+    DivResult<BigInt> result{BigInt::Zero(), BigInt::Zero()};
     std::ignore = Divide(other, result);
     return result.remainder;
   }
