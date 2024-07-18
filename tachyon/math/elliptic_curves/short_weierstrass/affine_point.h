@@ -205,8 +205,8 @@ class AffinePoint<
     return true;
   }
 
-  BaseField x_;
-  BaseField y_;
+  BaseField x_ = BaseField::Zero();
+  BaseField y_ = BaseField::Zero();
 };
 
 }  // namespace math
@@ -225,7 +225,7 @@ class Copyable<math::AffinePoint<
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::AffinePoint<Curve>* point) {
     using BaseField = typename math::AffinePoint<Curve>::BaseField;
-    BaseField x, y;
+    BaseField x(0), y(0);
     if (!buffer.ReadMany(&x, &y)) return false;
 
     *point = math::AffinePoint<Curve>(std::move(x), std::move(y));

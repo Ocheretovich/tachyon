@@ -37,7 +37,7 @@ class UnivariateDenseCoefficients;
 template <typename F>
 struct UnivariateTerm {
   size_t degree;
-  F coefficient;
+  F coefficient = F::Zero();
 
   UnivariateTerm operator+(const F& scalar) const {
     return {degree, coefficient + scalar};

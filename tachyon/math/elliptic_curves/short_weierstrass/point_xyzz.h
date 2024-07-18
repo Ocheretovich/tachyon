@@ -298,10 +298,10 @@ class PointXYZZ<_Curve,
                                             PointXYZZ& c);
   constexpr static void DoDoubleImpl(const PointXYZZ& a, PointXYZZ& b);
 
-  BaseField x_;
-  BaseField y_;
-  BaseField zz_;
-  BaseField zzz_;
+  BaseField x_ = BaseField::Zero();
+  BaseField y_ = BaseField::Zero();
+  BaseField zz_ = BaseField::Zero();
+  BaseField zzz_ = BaseField::Zero();
 };
 
 }  // namespace math
@@ -320,7 +320,7 @@ class Copyable<math::PointXYZZ<
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::PointXYZZ<Curve>* point) {
     using BaseField = typename math::PointXYZZ<Curve>::BaseField;
-    BaseField x, y, zz, zzz;
+    BaseField x(0), y(0), zz(0), zzz(0);
     if (!buffer.ReadMany(&x, &y, &zz, &zzz)) return false;
 
     *point = math::PointXYZZ<Curve>(std::move(x), std::move(y), std::move(zz),

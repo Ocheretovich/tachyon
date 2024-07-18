@@ -443,8 +443,8 @@ class Copyable<Derived, std::enable_if_t<std::is_base_of_v<
   static bool ReadFrom(
       const ReadOnlyBuffer& buffer,
       math::QuadraticExtensionField<Derived>* quadratic_extension_field) {
-    typename Derived::BaseField c0;
-    typename Derived::BaseField c1;
+    typename Derived::BaseField c0(0);
+    typename Derived::BaseField c1(0);
     if (!buffer.ReadMany(&c0, &c1)) return false;
 
     *quadratic_extension_field =
@@ -479,8 +479,8 @@ class RapidJsonValueConverter<
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  math::QuadraticExtensionField<Derived>* value,
                  std::string* error) {
-    BaseField c0;
-    BaseField c1;
+    BaseField c0(0);
+    BaseField c1(0);
     if (!ParseJsonElement(json_value, "c0", &c0, error)) return false;
     if (!ParseJsonElement(json_value, "c1", &c1, error)) return false;
     *value =

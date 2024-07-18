@@ -278,9 +278,9 @@ class ProjectivePoint<
   constexpr static void DoDoubleImpl(const ProjectivePoint& a,
                                      ProjectivePoint& b);
 
-  BaseField x_;
-  BaseField y_;
-  BaseField z_;
+  BaseField x_ = BaseField::Zero();
+  BaseField y_ = BaseField::Zero();
+  BaseField z_ = BaseField::Zero();
 };
 
 }  // namespace math
@@ -300,7 +300,7 @@ class Copyable<math::ProjectivePoint<
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::ProjectivePoint<Curve>* point) {
     using BaseField = typename math::ProjectivePoint<Curve>::BaseField;
-    BaseField x, y, z;
+    BaseField x(0), y(0), z(0);
     if (!buffer.ReadMany(&x, &y, &z)) return false;
 
     *point =

@@ -26,7 +26,7 @@ struct Subclaim {
   // The multi-dimensional point this multilinear evaluation is evaluated at.
   std::vector<F> point;
   // The expected evaluation.
-  F expected_evaluation;
+  F expected_evaluation = F::Zero();
 };
 
 template <typename MLE>

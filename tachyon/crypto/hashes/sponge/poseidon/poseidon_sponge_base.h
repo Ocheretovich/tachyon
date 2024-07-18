@@ -70,7 +70,7 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
       bytes.insert(bytes.end(), elem_bytes.begin(), elem_bytes.end());
     }
 
-    bytes.resize(num_bytes);
+    bytes.resize(num_bytes, F::Zero());
     return bytes;
   }
 
@@ -120,7 +120,7 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
     const Derived& derived = static_cast<const Derived&>(*this);
     auto& config = derived.config;
 
-    std::vector<F> ret(num_elements);
+    std::vector<F> ret(num_elements, F::Zero());
     switch (state.mode.type) {
       case DuplexSpongeMode::Type::kAbsorbing: {
         derived.Permute(state);

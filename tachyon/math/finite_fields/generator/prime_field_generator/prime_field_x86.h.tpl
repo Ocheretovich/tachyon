@@ -44,23 +44,25 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   constexpr static BYInverter<N> inverter =
       BYInverter<N>(Config::kModulus, Config::kMontgomeryR2);
 
-  constexpr PrimeField() = default;
+  struct ZeroInit {};
+  PrimeField() {}
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
   constexpr explicit PrimeField(T value) : PrimeField(BigInt<N>(value)) {}
-  constexpr explicit PrimeField(const BigInt<N>& value) {
+  constexpr explicit PrimeField(const BigInt<N>& value) : value_(0) {
     DCHECK_LT(value, Config::kModulus);
     %{prefix}_rawToMontgomery(value_.limbs, value.limbs);
   }
+  constexpr explicit PrimeField(struct ZeroInit) : value_(0) {}
   constexpr PrimeField(const PrimeField& other) = default;
   constexpr PrimeField& operator=(const PrimeField& other) = default;
   constexpr PrimeField(PrimeField&& other) = default;
   constexpr PrimeField& operator=(PrimeField&& other) = default;
 
-  constexpr static PrimeField Zero() { return PrimeField(); }
+  constexpr static PrimeField Zero() { return PrimeField(ZeroInit{}); }
 
   constexpr static PrimeField One() {
-    PrimeField ret{};
+    PrimeField ret(ZeroInit{});
     ret.value_ = Config::kOne;
     return ret;
   }
@@ -250,7 +252,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
   }
 
  private:
-  BigInt<N> value_ = BigInt<N>::Zero();
+  BigInt<N> value_;
 };
 
 }  // namespace tachyon::math

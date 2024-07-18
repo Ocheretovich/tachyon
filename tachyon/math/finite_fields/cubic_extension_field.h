@@ -456,9 +456,9 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   // c = c0_ + c1_ * X + c2_ * X²
-  BaseField c0_;
-  BaseField c1_;
-  BaseField c2_;
+  BaseField c0_ = BaseField::Zero();
+  BaseField c1_ = BaseField::Zero();
+  BaseField c2_ = BaseField::Zero();
 };
 
 template <
@@ -527,9 +527,9 @@ class RapidJsonValueConverter<
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  math::CubicExtensionField<Derived>* value,
                  std::string* error) {
-    BaseField c0;
-    BaseField c1;
-    BaseField c2;
+    BaseField c0 = BaseField::Zero();
+    BaseField c1 = BaseField::Zero();
+    BaseField c2 = BaseField::Zero();
     if (!ParseJsonElement(json_value, "c0", &c0, error)) return false;
     if (!ParseJsonElement(json_value, "c1", &c1, error)) return false;
     if (!ParseJsonElement(json_value, "c2", &c2, error)) return false;

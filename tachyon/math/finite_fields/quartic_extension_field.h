@@ -691,10 +691,10 @@ class RapidJsonValueConverter<
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  math::QuarticExtensionField<Derived>* value,
                  std::string* error) {
-    BaseField c0;
-    BaseField c1;
-    BaseField c2;
-    BaseField c3;
+    BaseField c0(0);
+    BaseField c1(0);
+    BaseField c2(0);
+    BaseField c3(0);
     if (!ParseJsonElement(json_value, "c0", &c0, error)) return false;
     if (!ParseJsonElement(json_value, "c1", &c1, error)) return false;
     if (!ParseJsonElement(json_value, "c2", &c2, error)) return false;
