@@ -64,7 +64,7 @@ bool LagrangeInterpolate(
         // clang-format on
 
         std::pmr::vector<F> coeffs(points.size());
-        std::pmr::vector<F> coeffs_sum(points.size());
+        std::pmr::vector<F> coeffs_sum(points.size(), F::Zero());
 
         size_t start = chunk_offset * chunk_size;
         for (size_t chunk_idx = 0; chunk_idx < chunk.size(); ++chunk_idx) {

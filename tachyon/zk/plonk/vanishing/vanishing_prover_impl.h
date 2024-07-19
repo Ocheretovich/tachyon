@@ -169,7 +169,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::BatchEvaluate(
   std::vector<absl::Span<F>> h_pieces =
       base::Map(h_chunks.begin(), h_chunks.end(),
                 [](absl::Span<F> h_piece) { return h_piece; });
-  std::pmr::vector<F> coeffs(n);
+  std::pmr::vector<F> coeffs(n, F::Zero());
   for (size_t i = h_pieces.size() - 1; i != SIZE_MAX; --i) {
     OPENMP_PARALLEL_FOR(size_t j = 0; j < n; ++j) {
       coeffs[j] *= x_n;

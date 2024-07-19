@@ -28,9 +28,11 @@ class QuadraticArithmeticProgram {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
 
-    std::pmr::vector<F> a(domain->size());
-    std::pmr::vector<F> b(domain->size());
-    std::pmr::vector<F> c(domain->size());
+    CHECK_GE(domain->size(), matrices.num_constraints);
+
+    std::pmr::vector<F> a(domain->size(), F::Zero());
+    std::pmr::vector<F> b(domain->size(), F::Zero());
+    std::pmr::vector<F> c(domain->size(), F::Zero());
 
     // See
     // https://github.com/iden3/rapidsnark/blob/b17e6fe/src/groth16.cpp#L116-L156.

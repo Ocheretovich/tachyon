@@ -53,7 +53,7 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
     }
   }
 
-  std::pmr::vector<F> permuted_table_expressions(domain_size);
+  std::pmr::vector<F> permuted_table_expressions(domain_size, F::Zero());
 
   std::vector<RowIndex> repeated_input_rows;
   repeated_input_rows.reserve(usable_rows - 1);

@@ -238,7 +238,7 @@ class SelectorCompressor {
   void ConstructCombinedSelector(
       size_t n, const std::vector<SelectorDescription>& combination) {
     // Now, compute the selector and combination assignments.
-    std::pmr::vector<F> combination_assignment(n);
+    std::pmr::vector<F> combination_assignment(n, F::Zero());
     size_t combination_len = combination.size();
     size_t combination_index = combination_assignments_.size();
     std::unique_ptr<Expression<F>> query = callback_.Run();

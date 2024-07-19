@@ -220,7 +220,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
   // 1 / τ(X)
   ComputeLogDerivatives(compressed_table, beta, storage.table_log_derivatives);
 
-  std::pmr::vector<F> grand_sum(n);
+  std::pmr::vector<F> grand_sum(n, F::Zero());
   grand_sum[0] = F::Zero();
 
   // (Σ 1/φᵢ(X)) - m(X) / τ(X)

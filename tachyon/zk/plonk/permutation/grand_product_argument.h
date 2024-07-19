@@ -23,7 +23,7 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    std::vector<F> z(size + 1);
+    std::vector<F> z(size + 1, F::Zero());
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     base::Parallelize(grand_product, std::move(denominator_callback));
@@ -45,7 +45,7 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    std::pmr::vector<F> z(size + 1);
+    std::pmr::vector<F> z(size + 1, F::Zero());
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     for (RowIndex i = 0; i < size; ++i) {

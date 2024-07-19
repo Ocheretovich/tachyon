@@ -27,7 +27,7 @@ namespace tachyon::zk::r1cs {
 template <typename F>
 F EvaluateConstraint(const std::vector<Cell<F>>& cells,
                      absl::Span<const F> assignments) {
-  F sum;
+  F sum = F::Zero();
   for (const Cell<F>& cell : cells) {
     if (cell.coefficient.IsOne()) {
       sum += assignments[cell.index];
@@ -66,9 +66,9 @@ class QuadraticArithmeticProgram {
     size_t num_qap_variables =
         (num_instance_variables - 1) + num_witness_variables;
 
-    std::vector<F> a(num_qap_variables + 1);
-    std::vector<F> b(num_qap_variables + 1);
-    std::vector<F> c(num_qap_variables + 1);
+    std::vector<F> a(num_qap_variables + 1, F::Zero());
+    std::vector<F> b(num_qap_variables + 1, F::Zero());
+    std::vector<F> c(num_qap_variables + 1, F::Zero());
 
     // clang-format off
     // |a[i]| = lₙ₊ᵢ(x) +  Σⱼ₌₀..ₙ₋₁ (lⱼ(x) * Aⱼ,ᵢ) (if i < |num_instance_variables|)
@@ -126,9 +126,9 @@ class QuadraticArithmeticProgram {
 
     CHECK_GE(domain->size(), matrices.num_constraints);
 
-    std::pmr::vector<F> a(domain->size());
-    std::pmr::vector<F> b(domain->size());
-    std::pmr::vector<F> c(domain->size());
+    std::pmr::vector<F> a(domain->size(), F::Zero());
+    std::pmr::vector<F> b(domain->size(), F::Zero());
+    std::pmr::vector<F> c(domain->size(), F::Zero());
 
     // clang-format off
     // |a[i]| = Σⱼ₌₀..ₘ (xⱼ * Aᵢ,ⱼ)    (if i < |num_constraints|)

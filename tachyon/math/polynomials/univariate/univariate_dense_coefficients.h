@@ -108,7 +108,7 @@ class UnivariateDenseCoefficients {
     // i = 3 | x₀x₁x₂x₃ | -(x₀x₁x₂ + x₀x₁x₃ + x₀x₂x₃ + x₁x₂x₃) | x₀x₁ + x₀x₂ + x₀x₃ + x₁x₂ + x₁x₃ + x₂x₃ | -(x₀ + x₁ + x₂ + x₃) |    1 |
     // clang-format on
 
-    std::pmr::vector<F> coefficients(std::size(roots) + 1);
+    std::pmr::vector<F> coefficients(std::size(roots) + 1, F::Zero());
     coefficients[0] = F::One();
     for (size_t i = 0; i < std::size(roots); ++i) {
       for (size_t j = i + 1; j > 0; --j) {
@@ -183,7 +183,7 @@ class UnivariateDenseCoefficients {
   CONSTEXPR_IF_NOT_OPENMP UnivariateDenseCoefficients
   Fold(const Field& r) const {
     size_t size = coefficients_.size();
-    std::pmr::vector<F> coefficients((size + 1) >> 1);
+    std::pmr::vector<F> coefficients((size + 1) >> 1, F::Zero());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
       coefficients[i >> 1] = coefficients_[i + 1] * r;
       coefficients[i >> 1] += coefficients_[i];
@@ -247,7 +247,7 @@ class UnivariateDenseCoefficients {
   // with |IsZero()|, it returns false. So please use it carefully!
   constexpr static UnivariateDenseCoefficients Zero(size_t degree) {
     UnivariateDenseCoefficients ret;
-    ret.coefficients_ = std::pmr::vector<F>(degree + 1);
+    ret.coefficients_ = std::pmr::vector<F>(degree + 1, F::Zero());
     return ret;
   }
 

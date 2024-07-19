@@ -33,7 +33,7 @@ class Synthesizer {
       advice_columns_vec_[i] =
           std::vector<Evals>(constraint_system->num_advice_columns());
       advice_blinds_vec_[i] =
-          std::vector<F>(constraint_system->num_advice_columns());
+          std::vector<F>(constraint_system->num_advice_columns(), F::Zero());
     }
   }
 

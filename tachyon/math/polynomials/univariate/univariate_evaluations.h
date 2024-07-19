@@ -254,7 +254,7 @@ class UnivariateEvaluations final
   // |degree| + 1.
   constexpr static UnivariateEvaluations Zero(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = std::pmr::vector<F>(degree + 1);
+    ret.evaluations_ = std::pmr::vector<F>(degree + 1, F::Zero());
     return ret;
   }
 

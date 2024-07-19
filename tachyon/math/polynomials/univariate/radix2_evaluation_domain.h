@@ -329,8 +329,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree>,
     size_t size = this->size_ / 2;
     for (size_t i = 1; i < this->log_size_of_group_; ++i) {
       size /= 2;
-      roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
-      inv_roots_vec_[i].resize(size);
+      roots_vec_[this->log_size_of_group_ - i - 1].resize(size, F::Zero());
+      inv_roots_vec_[i].resize(size, F::Zero());
     }
 
     // Assign every element based on the biggest vector.

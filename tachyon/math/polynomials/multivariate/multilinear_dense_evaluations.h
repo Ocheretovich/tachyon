@@ -150,7 +150,7 @@ class MultilinearDenseEvaluations {
   // |degree| + 1.
   constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
     MultilinearDenseEvaluations ret{};
-    ret.evaluations_ = std::vector<F>(size_t{1} << degree);
+    ret.evaluations_ = std::vector<F>(size_t{1} << degree, F::Zero());
     return ret;
   }
 
@@ -186,7 +186,7 @@ class MultilinearDenseEvaluations {
         evaluations[b] = left + r * (right - left);
       }
     }
-    evaluations.resize(size_t{1} << (n - k));
+    evaluations.resize(size_t{1} << (n - k), F::Zero());
   }
 
   std::vector<F> evaluations_;

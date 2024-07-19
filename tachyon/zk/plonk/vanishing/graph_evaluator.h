@@ -207,7 +207,7 @@ class GraphEvaluator : public tachyon::zk::Evaluator<F, ValueSource> {
   }
 
   std::vector<F> CreateInitialIntermediates() const {
-    return std::vector<F>(num_intermediates_);
+    return std::vector<F>(num_intermediates_, F::Zero());
   }
   std::vector<int32_t> CreateEmptyRotations() const {
     return std::vector<int32_t>(rotations_.size(), 0);

@@ -66,7 +66,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     const std::pmr::vector<F>& r_coefficients =
         other.coefficients_.coefficients_;
     l_coefficients.resize(
-        std::max(l_coefficients.size(), r_coefficients.size()));
+        std::max(l_coefficients.size(), r_coefficients.size()), F::Zero());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
       l_coefficients[i] += r_coefficients[i];
     }
@@ -108,7 +108,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     size_t other_degree = other.Degree();
     std::pmr::vector<F> upper_coeffs;
     if (degree < other_degree) {
-      upper_coeffs = std::pmr::vector<F>(other_degree - degree);
+      upper_coeffs = std::pmr::vector<F>(other_degree - degree, F::Zero());
     }
 
     std::pmr::vector<F>& l_coefficients = self.coefficients_.coefficients_;
@@ -164,7 +164,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     const std::pmr::vector<F>& r_coefficients =
         other.coefficients_.coefficients_;
     l_coefficients.resize(
-        std::max(l_coefficients.size(), r_coefficients.size()));
+        std::max(l_coefficients.size(), r_coefficients.size()), F::Zero());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
       l_coefficients[i] -= r_coefficients[i];
     }
@@ -453,7 +453,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   static UnivariatePolynomial<D>& Copy(UnivariatePolynomial<D>& self,
                                        const UnivariatePolynomial<S>& other) {
     std::pmr::vector<F>& l_coefficients = self.coefficients_.coefficients_;
-    l_coefficients = std::pmr::vector<F>(other.Degree() + 1);
+    l_coefficients = std::pmr::vector<F>(other.Degree() + 1, F::Zero());
 
     const std::vector<Term>& r_terms = other.coefficients().terms_;
     OPENMP_PARALLEL_FOR(const Term& r_term : r_terms) {
@@ -475,7 +475,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     const std::pmr::vector<F>& a_coefficients = a.coefficients_.coefficients_;
     const std::pmr::vector<F>& b_coefficients = b.coefficients_.coefficients_;
-    std::pmr::vector<F> c_coefficients(a_degree + b_degree + 1);
+    std::pmr::vector<F> c_coefficients(a_degree + b_degree + 1, F::Zero());
     for (size_t i = 0; i < b_coefficients.size(); ++i) {
       const F& b = b_coefficients[i];
       if (b.IsZero()) {
@@ -499,7 +499,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     const std::pmr::vector<F>& a_coefficients = a.coefficients_.coefficients_;
     const std::vector<Term>& b_terms = b.coefficients().terms_;
-    std::pmr::vector<F> c_coefficients(a_degree + b_degree + 1);
+    std::pmr::vector<F> c_coefficients(a_degree + b_degree + 1, F::Zero());
     for (size_t i = 0; i < b_terms.size(); ++i) {
       const F& b = b_terms[i].coefficient;
       if (b.IsZero()) {
@@ -533,7 +533,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
           UnivariatePolynomial<D>::Zero(), self.ToDense()};
       return true;
     }
-    std::pmr::vector<F> quotient(self.Degree() - other.Degree() + 1);
+    std::pmr::vector<F> quotient(self.Degree() - other.Degree() + 1, F::Zero());
     UnivariatePolynomial<D> remainder = self.ToDense();
     std::pmr::vector<F>& r_coefficients = remainder.coefficients_.coefficients_;
     F divisor_leading_inv = *other.GetLeadingCoefficient().Inverse();

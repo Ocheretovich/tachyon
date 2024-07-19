@@ -119,10 +119,10 @@ class TwoAdicMultiplicativeCoset {
 
     F coset_i = domain_->group_gen().Pow(domain_->size() - 1);
 
-    std::vector<F> first_row(sz);
-    std::vector<F> last_row(sz);
-    std::vector<F> transition(sz);
-    std::vector<F> inv_zeroifier(sz);
+    std::vector<F> first_row(sz, F::Zero());
+    std::vector<F> last_row(sz, F::Zero());
+    std::vector<F> transition(sz, F::Zero());
+    std::vector<F> inv_zeroifier(sz, F::Zero());
 
     base::Parallelize(
         xs, [this, &evals, &coset_i, &inv_denoms_inv_zeroifier, &first_row,

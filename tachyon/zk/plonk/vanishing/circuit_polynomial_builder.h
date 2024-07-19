@@ -139,7 +139,7 @@ class CircuitPolynomialBuilder {
 
       UpdateLPolys();
 
-      std::vector<F> value_part(static_cast<size_t>(n_));
+      std::vector<F> value_part(static_cast<size_t>(n_), F::Zero());
       size_t circuit_num = poly_tables_.size();
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
