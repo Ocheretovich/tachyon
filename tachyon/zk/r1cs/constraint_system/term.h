@@ -20,7 +20,7 @@ struct Term {
   F coefficient;
   Variable variable;
 
-  constexpr Term() = default;
+  Term() {}
   constexpr explicit Term(const Variable& variable)
       : coefficient(F::One()), variable(variable) {}
   constexpr explicit Term(Variable&& variable)
