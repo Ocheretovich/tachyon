@@ -53,8 +53,8 @@ struct GrandSumPolysTempStorage {
   std::vector<F> table_log_derivatives;
 
   explicit GrandSumPolysTempStorage(size_t usable_rows)
-      : inputs_log_derivatives(usable_rows),
-        table_log_derivatives(usable_rows) {}
+      : inputs_log_derivatives(usable_rows, F::Zero()),
+        table_log_derivatives(usable_rows, F::Zero()) {}
 };
 
 template <typename Poly, typename Evals>

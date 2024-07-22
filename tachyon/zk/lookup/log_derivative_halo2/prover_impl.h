@@ -121,7 +121,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
   }
 
   // Convert atomic |m_values| to |Evals|.
-  std::pmr::vector<F> m_values(prover->pcs().N());
+  std::pmr::vector<F> m_values(prover->pcs().N(), F::Zero());
   OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
     m_values[i] =
         F(storage.m_values_atomic[i].exchange(0, std::memory_order_relaxed));

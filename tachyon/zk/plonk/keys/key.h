@@ -94,7 +94,7 @@ class TACHYON_EXPORT Key {
 
     result->fixed_columns =
         base::Map(assembly.fixed_columns(), [](const RationalEvals& evals) {
-          std::pmr::vector<F> result(evals.evaluations().size());
+          std::pmr::vector<F> result(evals.evaluations().size(), F::Zero());
           CHECK(math::RationalField<F>::BatchEvaluate(evals.evaluations(),
                                                       &result));
           return Evals(std::move(result));
