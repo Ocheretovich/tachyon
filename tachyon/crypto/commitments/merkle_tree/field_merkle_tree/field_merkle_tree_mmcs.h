@@ -24,6 +24,7 @@
 
 #if TACHYON_CUDA
 #include "tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle/icicle_mmcs.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/icicle/icicle_poseidon2.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_params.h"
 #include "tachyon/device/gpu/gpu_memory.h"
@@ -77,6 +78,7 @@ class FieldMerkleTreeMMCS final
     if constexpr (IsIciclePoseidon2Supported<F> && IsIcicleMMCSSupported<F>) {
       if (poseidon2_gpu_) return;
       if (mmcs_gpu_) return;
+      using Params = Poseidon2Params<F, 15, 7>;
 
       gpuMemPoolProps props = {gpuMemAllocationTypePinned,
                                gpuMemHandleTypeNone,
@@ -92,8 +94,8 @@ class FieldMerkleTreeMMCS final
       poseidon2_gpu_.reset(
           new IciclePoseidon2<F>(mem_pool_.get(), stream_.get()));
 
-      auto config = Poseidon2Config<Poseidon2Params<F, 15, 7>>::Create(
-          GetPoseidon2InternalShiftArray<Poseidon2Params<F, 15, 7>>());
+      auto config = Poseidon2Config<Params>::Create(
+          GetPoseidon2InternalShiftArray<Params>());
 
       if (config.use_plonky3_internal_matrix) {
         math::Vector<F> internal_vector = math::Vector<F>(Params::kWidth);
@@ -182,9 +184,17 @@ class FieldMerkleTreeMMCS final
     if constexpr (IsIciclePoseidon2Supported<F> && IsIcicleMMCSSupported<F>) {
       if (!poseidon2_gpu_) return false;
       if (!mmcs_gpu_) return false;
+      std::vector<std::vector<std::vector<F>>> outputs;
 
       bool result = mmcs_gpu_->DoCommit(std::move(matrices), std::move(outputs),
                                         poseidon2_gpu_->data());
+      for (const auto& output : outputs) {
+        for (const auto& layer : output) {
+          for (const auto& element : layer) {
+            LOG(ERROR) << "output: " << element;
+          }
+        }
+      }
       if (result) return true;
     }
 #endif
