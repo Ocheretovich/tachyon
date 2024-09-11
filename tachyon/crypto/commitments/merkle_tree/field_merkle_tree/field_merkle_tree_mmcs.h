@@ -178,6 +178,16 @@ class FieldMerkleTreeMMCS final
   [[nodiscard]] bool DoCommit(std::vector<math::RowMajorMatrix<F>>&& matrices,
                               Commitment* commitment,
                               ProverData* prover_data) const {
+#if TACHYON_CUDA
+    if constexpr (IsIciclePoseidon2Supported<F> && IsIcicleMMCSSupported<F>) {
+      if (!poseidon2_gpu_) return false;
+      if (!mmcs_gpu_) return false;
+
+      bool result = mmcs_gpu_->DoCommit(std::move(matrices), std::move(outputs),
+                                        poseidon2_gpu_->data());
+      if (result) return true;
+    }
+#endif
     TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommit");
     *prover_data =
         FieldMerkleTree<F, N>::Build(hasher_, packed_hasher_, compressor_,
