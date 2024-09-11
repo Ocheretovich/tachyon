@@ -36,6 +36,7 @@ tachyon_cc_library(
         "//tachyon/base:profiler",
         "//tachyon/base:sort",
         "//tachyon/crypto/commitments:mixed_matrix_commitment_scheme",
+        "//tachyon/crypto/commitments/merkle_tree/field_merkle_tree/icicle",
         "//tachyon/crypto/hashes/sponge/poseidon2/icicle",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",

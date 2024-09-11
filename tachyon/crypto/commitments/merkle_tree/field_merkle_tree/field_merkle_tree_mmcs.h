@@ -74,8 +74,9 @@ class FieldMerkleTreeMMCS final
 
 #if TACHYON_CUDA
   void SetupForGpu() {
-    if constexpr (IsIciclePoseidon2Supported<F>) {
+    if constexpr (IsIciclePoseidon2Supported<F> && IsIcicleMMCSSupported<F>) {
       if (poseidon2_gpu_) return;
+      if (mmcs_gpu_) return;
 
       gpuMemPoolProps props = {gpuMemAllocationTypePinned,
                                gpuMemHandleTypeNone,
@@ -124,12 +125,16 @@ class FieldMerkleTreeMMCS final
         if (poseidon2_gpu_->Create(Params::kWidth, Params::kRate,
                                    Params::kAlpha, Params::kPartialRounds,
                                    Params::kFullRounds, ark_span,
-                                   internal_vector_span, Vendor::kPlonky3))
+                                   internal_vector_span, Vendor::kPlonky3)) {
+          mmcs_gpu_.reset(new IcicleMMCS<F>(mem_pool_.get(), stream_.get()));
           return;
+        }
       } else {
         if (poseidon2_gpu_->Load(Params::kWidth, Params::kRate,
-                                 Vendor::kHorizen))
+                                 Vendor::kHorizen)) {
+          mmcs_gpu_.reset(new IcicleMMCS<F>(mem_pool_.get(), stream_.get()));
           return;
+        }
       }
 
       LOG(ERROR) << "Failed poseidon2 gpu setup";
@@ -331,6 +336,7 @@ class FieldMerkleTreeMMCS final
   device::gpu::ScopedMemPool mem_pool_;
   device::gpu::ScopedStream stream_;
   std::unique_ptr<IciclePoseidon2<F>> poseidon2_gpu_;
+  std::unique_ptr<IcicleMMCS<F>> mmcs_gpu_;
 #endif
 };
 
