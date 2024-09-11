@@ -81,6 +81,9 @@ class IciclePoseidon2 {
     return true;
   }
 
+  void* data() { return poseidon_; }
+  const void* data() const { return poseidon_; }
+
  private:
   gpuMemPool_t mem_pool_ = nullptr;
   gpuStream_t stream_ = nullptr;
