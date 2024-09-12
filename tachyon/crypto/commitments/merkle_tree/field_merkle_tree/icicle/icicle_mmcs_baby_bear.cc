@@ -35,44 +35,44 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
 #if FIELD_ID != BABY_BEAR
 #error Only BABY_BEAR is supported
 #endif
-  // setting leaves
   size_t max_tree_height = 0;
   size_t number_of_leaves = 0;
   for (const auto& matrix : matrices) {
     size_t tree_height = base::bits::Log2Ceiling(
         absl::bit_ceil(static_cast<size_t>(matrix.rows())));
-    max_tree_height =
-        max_tree_height > tree_height ? max_tree_height : tree_height;
+    max_tree_height = std::max(max_tree_height, tree_height);
     number_of_leaves += matrix.size();
   }
 
-  ::matrix::Matrix<::babybear::scalar_t>* leaves =
-      static_cast<::matrix::Matrix<::babybear::scalar_t>*>(malloc(
-          number_of_leaves * sizeof(::matrix::Matrix<::babybear::scalar_t>)));
-
-  size_t idx = 0;
-  for (const auto& matrix : matrices) {
-    uint64_t current_matrix_size = matrix.size();
-
-    absl::Span<const math::BabyBear> matrix_span =
-        absl::Span<const math::BabyBear>(matrix.data(), matrix.size());
-    auto reinterpret_cast_test =
+  auto allocate_and_convert =
+      [](const math::RowMajorMatrix<math::BabyBear>& matrix,
+         std::vector<::babybear::scalar_t>& dest_data)
+      -> ::babybear::scalar_t* {
+    absl::Span<const math::BabyBear> matrix_span(matrix.data(), matrix.size());
+    auto icicle_matrix_span =
         reinterpret_cast<const ::babybear::scalar_t*>(std::data(matrix_span));
 
-    // Destination data (must have the same size)
-    std::vector<::babybear::scalar_t> dest_data(matrix_span.size());
-    absl::Span<::babybear::scalar_t> dest_span(dest_data);
-    // Apply from_montgomery and move data
     for (size_t i = 0; i < matrix_span.size(); ++i) {
-      dest_span[i] =
-          ::babybear::scalar_t::from_montgomery(reinterpret_cast_test[i]);
+      dest_data[i] =
+          ::babybear::scalar_t::from_montgomery(icicle_matrix_span[i]);
     }
 
     ::babybear::scalar_t* d_matrix;
-    cudaMalloc(&d_matrix, current_matrix_size * sizeof(::babybear::scalar_t));
-    cudaMemcpy(d_matrix, dest_span.data(),
-               current_matrix_size * sizeof(::babybear::scalar_t),
+    cudaMalloc(&d_matrix, matrix.size() * sizeof(::babybear::scalar_t));
+    cudaMemcpy(d_matrix, dest_data.data(),
+               matrix.size() * sizeof(::babybear::scalar_t),
                cudaMemcpyHostToDevice);
+
+    return d_matrix;
+  };
+
+  std::unique_ptr<::matrix::Matrix<::babybear::scalar_t>[]> leaves(
+      new ::matrix::Matrix<::babybear::scalar_t>[number_of_leaves]);
+
+  size_t idx = 0;
+  for (const auto& matrix : matrices) {
+    std::vector<::babybear::scalar_t> dest_data(matrix.size());
+    ::babybear::scalar_t* d_matrix = allocate_and_convert(matrix, dest_data);
 
     leaves[idx] = {
         d_matrix,
@@ -87,11 +87,11 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
   size_t digests_len = ::merkle_tree::get_digests_len(
       config_->keep_rows - 1, config_->arity, config_->digest_elements);
 
-  ::babybear::scalar_t* icicle_digest = static_cast<::babybear::scalar_t*>(
-      malloc(digests_len * sizeof(::babybear::scalar_t)));
+  std::unique_ptr<::babybear::scalar_t[]> icicle_digest(
+      new ::babybear::scalar_t[digests_len]);
 
   cudaError_t error = tachyon_babybear_mmcs_commit_cuda(
-      leaves, matrices.size(), icicle_digest,
+      leaves.get(), matrices.size(), icicle_digest.get(),
       reinterpret_cast<::poseidon2::Poseidon2<::babybear::scalar_t>*>(
           icicle_poseidon2),
       reinterpret_cast<::poseidon2::Poseidon2<::babybear::scalar_t>*>(
@@ -104,17 +104,19 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
     std::vector<std::vector<math::BabyBear>> digest_layer;
     size_t number_of_node = 1 << (max_tree_height - layer_idx);
     digest_layer.reserve(number_of_node);
+
     for (size_t node_idx = 0; node_idx < number_of_node; ++node_idx) {
       std::vector<math::BabyBear> digest;
       digest.reserve(config_->digest_elements);
+
       for (size_t element_idx = 0; element_idx < config_->digest_elements;
            ++element_idx) {
         size_t idx = previous_number_of_element +
                      config_->digest_elements * node_idx + element_idx;
-        *(icicle_digest + idx) =
-            ::babybear::scalar_t::to_montgomery(*(icicle_digest + idx));
+        icicle_digest[idx] =
+            ::babybear::scalar_t::to_montgomery(icicle_digest[idx]);
         digest.emplace_back(
-            *reinterpret_cast<math::BabyBear*>(icicle_digest + idx));
+            *reinterpret_cast<math::BabyBear*>(&icicle_digest[idx]));
       }
       digest_layer.emplace_back(std::move(digest));
     }
@@ -122,13 +124,7 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
     previous_number_of_element += number_of_node * config_->digest_elements;
   }
 
-  free(icicle_digest);
-  free(leaves);
-  bool result = false;
-  if (error == cudaSuccess) {
-    result = true;
-  }
-  return result;
+  return error == cudaSuccess;
 }
 
 }  // namespace tachyon::crypto
