@@ -67,7 +67,7 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
   };
 
   std::unique_ptr<::matrix::Matrix<::babybear::scalar_t>[]> leaves(
-      new ::matrix::Matrix<::babybear::scalar_t>[number_of_leaves]);
+      new ::matrix::Matrix<::babybear::scalar_t>[matrices.size()]);
 
   size_t idx = 0;
   for (const auto& matrix : matrices) {
