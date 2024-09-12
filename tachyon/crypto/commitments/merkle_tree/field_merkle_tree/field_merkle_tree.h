@@ -42,6 +42,9 @@ class FieldMerkleTree {
   using PackedDigest = std::array<PackedPrimeField, N>;
 
   FieldMerkleTree() = default;
+  FieldMerkleTree(std::vector<math::RowMajorMatrix<F>>&& leaves,
+                  std::vector<std::vector<Digest>>&& digest_layers)
+      : leaves_(std::move(leaves)), digest_layers_(std::move(digest_layers)) {}
 
   template <typename Hasher, typename PackedHasher, typename Compressor,
             typename PackedCompressor>
@@ -149,10 +152,6 @@ class FieldMerkleTree {
    private:
     const math::RowMajorMatrix<F>* ptr_ = nullptr;
   };
-
-  FieldMerkleTree(std::vector<math::RowMajorMatrix<F>>&& leaves,
-                  std::vector<std::vector<Digest>>&& digest_layers)
-      : leaves_(std::move(leaves)), digest_layers_(std::move(digest_layers)) {}
 
   template <typename Hasher, typename PackedHasher>
   static std::vector<Digest> CreateFirstDigestLayer(
