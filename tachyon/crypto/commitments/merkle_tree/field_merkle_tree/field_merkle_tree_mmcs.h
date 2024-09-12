@@ -182,20 +182,34 @@ class FieldMerkleTreeMMCS final
                               ProverData* prover_data) const {
 #if TACHYON_CUDA
     if constexpr (IsIciclePoseidon2Supported<F> && IsIcicleMMCSSupported<F>) {
-      if (!poseidon2_gpu_) return false;
-      if (!mmcs_gpu_) return false;
-      std::vector<std::vector<std::vector<F>>> outputs;
+      if (!poseidon2_gpu_ || !mmcs_gpu_) return false;
 
-      bool result = mmcs_gpu_->DoCommit(std::move(matrices), std::move(outputs),
+      std::vector<std::vector<std::vector<F>>> digest_layers_icicle;
+      bool result = mmcs_gpu_->DoCommit(std::move(matrices),
+                                        std::move(digest_layers_icicle),
                                         poseidon2_gpu_->data());
-      for (const auto& output : outputs) {
-        for (const auto& layer : output) {
-          for (const auto& element : layer) {
-            LOG(ERROR) << "output: " << element;
+
+      std::vector<std::vector<Digest>> digest_layers;
+      digest_layers.resize(digest_layers_icicle.size());
+      for (size_t i = 0; i < digest_layers_icicle.size(); ++i) {
+        digest_layers[i].resize(digest_layers_icicle[i].size());
+        for (size_t j = 0; j < digest_layers_icicle[i].size(); ++j) {
+          if (digest_layers_icicle[i][j].size() == N) {
+            std::array<PrimeField, N> arr;
+
+            std::move(digest_layers_icicle[i][j].begin(),
+                      digest_layers_icicle[i][j].end(), arr.begin());
+
+            digest_layers[i][j] = std::move(arr);
           }
         }
       }
-      if (result) return true;
+      if (result) {
+        *prover_data =
+            FieldMerkleTree(std::move(matrices), std::move(digest_layers));
+        *commitment = prover_data->GetRoot();
+        return true;
+      }
     }
 #endif
     TRACE_EVENT("ProofGeneration", "FieldMerkleTreeMMCS::DoCommit");
@@ -289,6 +303,14 @@ class FieldMerkleTreeMMCS final
 
         root = compressor_.Compress(inputs);
       }
+    }
+    LOG(ERROR) << "CUDA_TEST3";
+    for (const auto& ele : root) {
+      LOG(ERROR) << "root: " << ele;
+    }
+
+    for (const auto& ele : commitment) {
+      LOG(ERROR) << "commitment: " << ele;
     }
 
     return root == commitment;
