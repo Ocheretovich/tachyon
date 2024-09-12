@@ -204,6 +204,14 @@ class FieldMerkleTreeMMCS final
           }
         }
       }
+      for (const auto& output : digest_layers_icicle) {
+        for (const auto& layer : output) {
+          for (const auto& element : layer) {
+            LOG(ERROR) << "output: " << element;
+          }
+        }
+      }
+
       if (result) {
         *prover_data =
             FieldMerkleTree(std::move(matrices), std::move(digest_layers));
