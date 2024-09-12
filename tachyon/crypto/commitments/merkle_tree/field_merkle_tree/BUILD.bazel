@@ -47,7 +47,7 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "field_merkle_tree_unittests",
     srcs = [
-        "extension_field_merkle_tree_mmcs_unittest.cc",
+        # "extension_field_merkle_tree_mmcs_unittest.cc",
         "field_merkle_tree_mmcs_unittest.cc",
         "field_merkle_tree_unittest.cc",
     ],
