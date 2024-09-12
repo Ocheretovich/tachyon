@@ -79,6 +79,9 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
         static_cast<size_t>(matrix.cols()),
         static_cast<size_t>(matrix.rows()),
     };
+    LOG(ERROR) << "matrix.size(): " << matrix.size();
+    LOG(ERROR) << "matrix.cols(): " << matrix.cols();
+    LOG(ERROR) << "matrix.rows(): " << matrix.rows();
     ++idx;
   }
 
@@ -89,7 +92,7 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
 
   std::unique_ptr<::babybear::scalar_t[]> icicle_digest(
       new ::babybear::scalar_t[digests_len]);
-
+  LOG(ERROR) << "number_of_leaves: " << number_of_leaves;
   cudaError_t error = tachyon_babybear_mmcs_commit_cuda(
       leaves.get(), matrices.size(), icicle_digest.get(),
       reinterpret_cast<::poseidon2::Poseidon2<::babybear::scalar_t>*>(
@@ -97,6 +100,9 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
       reinterpret_cast<::poseidon2::Poseidon2<::babybear::scalar_t>*>(
           icicle_poseidon2),
       *config_);
+  for (size_t idx = 0; idx < digests_len; ++idx) {
+    LOG(ERROR) << "init icicle_digest[" << idx << "]: " << icicle_digest[idx];
+  }
 
   outputs.reserve(config_->keep_rows);
   size_t previous_number_of_element = 0;
@@ -115,6 +121,7 @@ bool IcicleMMCS<math::BabyBear>::DoCommit(
                      config_->digest_elements * node_idx + element_idx;
         icicle_digest[idx] =
             ::babybear::scalar_t::to_montgomery(icicle_digest[idx]);
+        LOG(ERROR) << "icicle_digest[" << idx << "]: " << icicle_digest[idx];
         digest.emplace_back(
             *reinterpret_cast<math::BabyBear*>(&icicle_digest[idx]));
       }
