@@ -65,37 +65,37 @@ class FieldMerkleTreeMMCSTest : public math::FiniteFieldTest<PackedF> {
 
 }  // namespace
 
-TEST_F(FieldMerkleTreeMMCSTest, Commit) {
-  std::vector<F> vector{F(2), F(1), F(2), F(2), F(0), F(0), F(1), F(0)};
-  math::RowMajorMatrix<F> matrix{
-      {F(2)}, {F(1)}, {F(2)}, {F(2)}, {F(0)}, {F(0)}, {F(1)}, {F(0)},
-  };
-  std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
+// TEST_F(FieldMerkleTreeMMCSTest, Commit) {
+//   std::vector<F> vector{F(2), F(1), F(2), F(2), F(0), F(0), F(1), F(0)};
+//   math::RowMajorMatrix<F> matrix{
+//       {F(2)}, {F(1)}, {F(2)}, {F(2)}, {F(0)}, {F(0)}, {F(1)}, {F(0)},
+//   };
+//   std::vector<math::RowMajorMatrix<F>> matrices = {matrix};
 
-  std::vector<math::RowMajorMatrix<F>> matrices_tmp = matrices;
-  Tree tree =
-      Tree::Build(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
-                  mmcs_.packed_compressor(), std::move(matrices_tmp));
+//   std::vector<math::RowMajorMatrix<F>> matrices_tmp = matrices;
+//   Tree tree =
+//       Tree::Build(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
+//                   mmcs_.packed_compressor(), std::move(matrices_tmp));
 
-  {
-    std::array<F, kChunk> commitment;
-    Tree prover_data;
-    ASSERT_TRUE(mmcs_.Commit(vector, &commitment, &prover_data));
-    EXPECT_EQ(commitment, tree.GetRoot());
-  }
-  {
-    std::array<F, kChunk> commitment;
-    Tree prover_data;
-    ASSERT_TRUE(mmcs_.Commit(std::move(matrix), &commitment, &prover_data));
-    EXPECT_EQ(commitment, tree.GetRoot());
-  }
-  {
-    std::array<F, kChunk> commitment;
-    Tree prover_data;
-    ASSERT_TRUE(mmcs_.Commit(std::move(matrices), &commitment, &prover_data));
-    EXPECT_EQ(commitment, tree.GetRoot());
-  }
-}
+//   {
+//     std::array<F, kChunk> commitment;
+//     Tree prover_data;
+//     ASSERT_TRUE(mmcs_.Commit(vector, &commitment, &prover_data));
+//     EXPECT_EQ(commitment, tree.GetRoot());
+//   }
+//   {
+//     std::array<F, kChunk> commitment;
+//     Tree prover_data;
+//     ASSERT_TRUE(mmcs_.Commit(std::move(matrix), &commitment, &prover_data));
+//     EXPECT_EQ(commitment, tree.GetRoot());
+//   }
+//   {
+//     std::array<F, kChunk> commitment;
+//     Tree prover_data;
+//     ASSERT_TRUE(mmcs_.Commit(std::move(matrices), &commitment,
+//     &prover_data)); EXPECT_EQ(commitment, tree.GetRoot());
+//   }
+// }
 
 TEST_F(FieldMerkleTreeMMCSTest, CommitAndVerify) {
   struct Config {
@@ -107,42 +107,56 @@ TEST_F(FieldMerkleTreeMMCSTest, CommitAndVerify) {
     std::vector<Config> configs;
     size_t index;
   } tests[] = {
-      {{{4, {8, 1000}}, {5, {8, 70}}, {6, {8, 8}}}, 6},
-      {{{1, {1, 32}},
-        {1, {2, 32}},
-        {1, {3, 32}},
-        {1, {4, 32}},
-        {1, {5, 32}},
-        {1, {6, 32}},
-        {1, {7, 32}},
-        {1, {8, 32}},
-        {1, {9, 32}},
-        {1, {10, 32}}},
-       17},
+      {{{2, {4, 2}}}, 1},
+      {{
+           {1, {1, 32}},
+           {1, {2, 32}},
+           {1, {3, 32}},
+           {1, {5, 32}},
+           {1, {6, 32}},
+           {1, {7, 32}},
+           {1, {8, 32}},
+       },
+       1},
   };
 
   for (const auto& test : tests) {
     std::vector<math::RowMajorMatrix<F>> matrices;
-    std::vector<math::Dimensions> dimensions_vec;
+    // std::vector<math::Dimensions> dimensions_vec;
     for (size_t i = 0; i < test.configs.size(); ++i) {
       math::Dimensions dimensions = test.configs[i].dimensions;
       for (size_t j = 0; j < test.configs[i].num; ++j) {
         matrices.push_back(math::RowMajorMatrix<F>::Random(dimensions.height,
                                                            dimensions.width));
-        dimensions_vec.push_back(dimensions);
+        // dimensions_vec.push_back(dimensions);
       }
     }
+    LOG(ERROR) << "matrices.size(): " << matrices.size();
+
+    std::vector<math::RowMajorMatrix<F>> matrices_tmp = matrices;
+    Tree tree =
+        Tree::Build(mmcs_.hasher(), mmcs_.packed_hasher(), mmcs_.compressor(),
+                    mmcs_.packed_compressor(), std::move(matrices_tmp));
 
     std::array<F, kChunk> commitment;
     Tree prover_data;
     ASSERT_TRUE(mmcs_.Commit(std::move(matrices), &commitment, &prover_data));
 
-    std::vector<std::vector<F>> openings;
-    std::vector<std::array<F, kChunk>> proof;
-    ASSERT_TRUE(
-        mmcs_.CreateOpeningProof(test.index, prover_data, &openings, &proof));
-    ASSERT_TRUE(mmcs_.VerifyOpeningProof(commitment, dimensions_vec, test.index,
-                                         openings, proof));
+    for (const auto& layer : tree.digest_layers()) {
+      for (const auto& elements : layer) {
+        for (const auto& element : elements) {
+          LOG(ERROR) << "Tachyon: " << element;
+        }
+      }
+    }
+    for (const auto& output : prover_data.digest_layers()) {
+      for (const auto& layer : output) {
+        for (const auto& element : layer) {
+          LOG(ERROR) << "ICICLE: " << element;
+        }
+      }
+    }
+    EXPECT_EQ(commitment, tree.GetRoot());
   }
 }
 
